@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: md-editor-postgres
+    environment:
+      POSTGRES_USER: mdeditor
+      POSTGRES_PASSWORD: mdeditor
+      POSTGRES_DB: mdeditor
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mdeditor"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: md-editor-app
+    ports:
+      - "80:80"
+    environment:
+      - DATABASE_URL=postgres://mdeditor:mdeditor@postgres:5432/mdeditor?sslmode=disable
+      - ENVIRONMENT=production
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

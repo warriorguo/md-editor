@@ -1,0 +1,95 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-gray-50 text-gray-900;
+}
+
+/* CodeMirror styles */
+.cm-editor {
+  height: 100%;
+  font-size: 14px;
+}
+
+.cm-editor .cm-scroller {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+/* Tiptap styles */
+.tiptap {
+  @apply prose prose-lg max-w-none p-4;
+  font-size: 18px;
+  line-height: 1.7;
+}
+
+.tiptap:focus {
+  @apply outline-none;
+}
+
+.tiptap h1 {
+  @apply text-4xl font-bold mt-6 mb-4;
+}
+
+.tiptap h2 {
+  @apply text-3xl font-bold mt-5 mb-3;
+}
+
+.tiptap h3 {
+  @apply text-2xl font-bold mt-4 mb-2;
+}
+
+.tiptap p {
+  @apply my-3 text-lg;
+}
+
+.tiptap ul,
+.tiptap ol {
+  @apply pl-6 my-3 text-lg;
+}
+
+.tiptap li {
+  @apply my-2;
+}
+
+.tiptap code {
+  @apply bg-gray-100 px-1 py-0.5 rounded text-base font-mono;
+}
+
+.tiptap pre {
+  @apply bg-gray-900 text-gray-100 p-4 rounded-lg my-4 overflow-x-auto;
+}
+
+.tiptap pre code {
+  @apply bg-transparent p-0;
+}
+
+.tiptap blockquote {
+  @apply border-l-4 border-gray-300 pl-4 italic my-4;
+}
+
+.tiptap hr {
+  @apply border-t border-gray-300 my-6;
+}
+
+.tiptap a {
+  @apply text-blue-600 underline;
+}
+
+.tiptap img {
+  @apply max-w-full h-auto rounded;
+}
+
+/* Outline styles */
+.outline-item {
+  @apply cursor-pointer hover:bg-gray-100 rounded px-2 py-1 transition-colors;
+}
+
+.outline-item.active {
+  @apply bg-blue-100 text-blue-700;
+}
+
+/* Editor container */
+.editor-container {
+  height: calc(100vh - 4rem);
+}
