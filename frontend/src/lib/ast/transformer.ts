@@ -69,7 +69,7 @@ function convertNode(node: MdastNode): JSONContent | null {
       return {
         type: 'codeBlock',
         attrs: { language: node.lang || null },
-        content: [{ type: 'text', text: node.value }],
+        content: node.value ? [{ type: 'text', text: node.value }] : undefined,
       };
 
     case 'thematicBreak':
@@ -96,35 +96,34 @@ function convertInlineContent(children: PhrasingContent[]): JSONContent[] {
 function convertInlineNode(node: PhrasingContent): JSONContent | null {
   switch (node.type) {
     case 'text':
+      if (!node.value) return null;
       return { type: 'text', text: node.value };
 
-    case 'strong':
-      return {
-        type: 'text',
-        marks: [{ type: 'bold' }],
-        text: getTextContent(node.children),
-      };
+    case 'strong': {
+      const text = getTextContent(node.children);
+      if (!text) return null;
+      return { type: 'text', marks: [{ type: 'bold' }], text };
+    }
 
-    case 'emphasis':
-      return {
-        type: 'text',
-        marks: [{ type: 'italic' }],
-        text: getTextContent(node.children),
-      };
+    case 'emphasis': {
+      const text = getTextContent(node.children);
+      if (!text) return null;
+      return { type: 'text', marks: [{ type: 'italic' }], text };
+    }
 
     case 'inlineCode':
-      return {
-        type: 'text',
-        marks: [{ type: 'code' }],
-        text: node.value,
-      };
+      if (!node.value) return null;
+      return { type: 'text', marks: [{ type: 'code' }], text: node.value };
 
-    case 'link':
+    case 'link': {
+      const text = getTextContent(node.children);
+      if (!text) return null;
       return {
         type: 'text',
         marks: [{ type: 'link', attrs: { href: node.url, target: '_blank' } }],
-        text: getTextContent(node.children),
+        text,
       };
+    }
 
     default:
       return null;
