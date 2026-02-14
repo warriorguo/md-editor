@@ -13,9 +13,13 @@ import type {
   Emphasis,
   InlineCode,
   Link,
+  Table,
+  TableRow,
+  TableCell,
   PhrasingContent,
   BlockContent,
   RootContent,
+  RowContent,
 } from 'mdast';
 
 type MdastNode = RootContent;
@@ -75,9 +79,35 @@ function convertNode(node: MdastNode): JSONContent | null {
     case 'thematicBreak':
       return { type: 'horizontalRule' };
 
+    case 'table':
+      return convertTable(node);
+
     default:
       return null;
   }
+}
+
+function convertTable(node: Table): JSONContent {
+  const rows = node.children;
+  const pmRows: JSONContent[] = [];
+
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i];
+    const isHeader = i === 0;
+    const cells = row.children.map((cell) => ({
+      type: isHeader ? 'tableHeader' : 'tableCell',
+      content: [
+        {
+          type: 'paragraph',
+          content: convertInlineContent(cell.children),
+        },
+      ],
+    }));
+
+    pmRows.push({ type: 'tableRow', content: cells });
+  }
+
+  return { type: 'table', content: pmRows };
 }
 
 function convertInlineContent(children: PhrasingContent[]): JSONContent[] {
@@ -115,6 +145,12 @@ function convertInlineNode(node: PhrasingContent): JSONContent | null {
       if (!node.value) return null;
       return { type: 'text', marks: [{ type: 'code' }], text: node.value };
 
+    case 'delete': {
+      const text = getTextContent(node.children);
+      if (!text) return null;
+      return { type: 'text', marks: [{ type: 'strike' }], text };
+    }
+
     case 'link': {
       const text = getTextContent(node.children);
       if (!text) return null;
@@ -134,6 +170,7 @@ function getTextContent(children: PhrasingContent[]): string {
   return children
     .map((child) => {
       if (child.type === 'text') return child.value;
+      if ('value' in child) return (child as { value: string }).value;
       if ('children' in child) return getTextContent(child.children as PhrasingContent[]);
       return '';
     })
@@ -233,13 +270,35 @@ function convertPMNode(node: JSONContent): RootContent | null {
       return rule;
     }
 
+    case 'table':
+      return convertPMTable(node);
+
     default:
       return null;
   }
 }
 
+function convertPMTable(node: JSONContent): Table {
+  const rows = (node.content || []).map((row): TableRow => {
+    const cells = (row.content || []).map((cell): RowContent => {
+      const children = convertPMInlineContent(
+        cell.content?.[0]?.content || []
+      );
+      const tableCell: TableCell = {
+        type: 'tableCell',
+        children: children.length > 0 ? children : [{ type: 'text', value: '' }],
+      };
+      return tableCell;
+    });
+
+    return { type: 'tableRow', children: cells };
+  });
+
+  return { type: 'table', children: rows };
+}
+
 function isBlockContent(node: RootContent): node is BlockContent {
-  return ['paragraph', 'heading', 'blockquote', 'list', 'code', 'thematicBreak'].includes(node.type);
+  return ['paragraph', 'heading', 'blockquote', 'list', 'code', 'thematicBreak', 'table'].includes(node.type);
 }
 
 function convertPMInlineContent(content: JSONContent[]): PhrasingContent[] {
@@ -266,6 +325,8 @@ function convertPMInlineContent(content: JSONContent[]): PhrasingContent[] {
           } else if (mark.type === 'code') {
             const inlineCode: InlineCode = { type: 'inlineCode', value: text };
             current = inlineCode;
+          } else if (mark.type === 'strike') {
+            current = { type: 'delete', children: [current] } as unknown as PhrasingContent;
           } else if (mark.type === 'link') {
             const link: Link = {
               type: 'link',

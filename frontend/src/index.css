@@ -76,6 +76,19 @@ body {
   @apply text-blue-600 underline;
 }
 
+.tiptap table {
+  @apply border-collapse w-full my-4;
+}
+
+.tiptap th,
+.tiptap td {
+  @apply border border-gray-300 px-3 py-2 text-left text-base;
+}
+
+.tiptap th {
+  @apply bg-gray-100 font-semibold;
+}
+
 .tiptap img {
   @apply max-w-full h-auto rounded;
 }
