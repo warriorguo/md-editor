@@ -56,6 +56,11 @@ body {
   @apply bg-gray-100 px-1 py-0.5 rounded text-base font-mono;
 }
 
+.tiptap code::before,
+.tiptap code::after {
+  content: none;
+}
+
 .tiptap pre {
   @apply bg-gray-900 text-gray-100 p-4 rounded-lg my-4 overflow-x-auto;
 }

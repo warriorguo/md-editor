@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useEditor, EditorContent, Editor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
+import Link from '@tiptap/extension-link';
 import { Table } from '@tiptap/extension-table';
 import { TableRow } from '@tiptap/extension-table-row';
 import { TableHeader } from '@tiptap/extension-table-header';
@@ -26,6 +27,9 @@ export function RichTextEditor({
         heading: {
           levels: [1, 2, 3],
         },
+      }),
+      Link.configure({
+        openOnClick: false,
       }),
       Table.configure({ resizable: false }),
       TableRow,
