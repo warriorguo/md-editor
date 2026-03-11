@@ -28,6 +28,15 @@ export function EditorPage() {
     }
   }, [projectId]);
 
+  useEffect(() => {
+    if (project?.name) {
+      window.document.title = project.name;
+    }
+    return () => {
+      window.document.title = 'Markdown Editor';
+    };
+  }, [project?.name]);
+
   if (!projectId) {
     navigate('/');
     return null;
